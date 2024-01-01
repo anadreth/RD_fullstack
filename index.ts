@@ -6,6 +6,8 @@ import { authenticateToken } from './middleware/authToken'
 import { users } from './mock/users'
 import multer from 'multer'
 import { generateImagePath, processAndSaveImage } from './helpers'
+import fsRoutes from './modules/FileStorage/routes/fsRoutes'
+import s3Routes from './modules/FileStorage/routes/s3Routes'
 
 dotenv.config()
 const port = process.env.PORT || 3000
@@ -17,6 +19,9 @@ const app: Application = express()
 app.use(bodyParser.json())
 app.use('/uploads', express.static('uploads'));
 const upload = multer({ dest: 'uploads/' }); 
+
+app.use('/fs', fsRoutes);
+app.use('/s3', s3Routes);
 
 app.post('/upload-base64', async (req, res) => {
   const { base64Image } = req.body;
