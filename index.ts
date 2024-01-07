@@ -3,11 +3,12 @@ import dotenv from 'dotenv'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import bodyParser from 'body-parser'
 import { authenticateToken } from './middleware/authToken'
-import { users } from './mock/users'
 import multer from 'multer'
 import { generateImagePath, processAndSaveImage } from './helpers'
 import fsRoutes from './modules/FileStorage/routes/fsRoutes'
 import s3Routes from './modules/FileStorage/routes/s3Routes'
+import { db } from './database'
+import bcrypt from 'bcrypt'
 
 dotenv.config()
 const port = process.env.PORT || 3000
@@ -55,24 +56,33 @@ app.post('/upload-formdata', upload.single('image'), async (req, res) => {
   res.send({ url: `http://localhost:${port}/${imagePath}` });
 });
 
-app.post('/login', (req: Request, res: Response) => {
-  const { username, password } = req.body
-  const user = users.find(u => u.username === username && u.password === password)
+app.post('/login', async (req: Request, res: Response) => {
+  const { username, password } = req.body;
 
-  if (user) {
-      const payload: JwtPayload = { username: user.username }
+  try {
+    const user = await db
+      .selectFrom('users')
+      .select(['id', 'username', 'password'])
+      .where('username', '=', username)
+      .executeTakeFirst();
 
-      if (JWT_SECRET != null)  {
-        const token = jwt.sign(payload, JWT_SECRET)
-        res.json({ token })
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const payload = { username: user.username };
+
+      if (JWT_SECRET) {
+        const token = jwt.sign(payload, JWT_SECRET);
+        res.json({ token });
       } else {
-        res.sendStatus(401)
+        res.sendStatus(401);
       }
-     
-  } else {
-      res.sendStatus(401)
+    } else {
+      res.sendStatus(401);
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    res.sendStatus(500); 
   }
-})
+});
 
 app.get('/public', (req: Request, res: Response) => {
   res.send('Public content')
