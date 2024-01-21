@@ -7,7 +7,11 @@ export type JwtPayload = {
     username: string
 }
 
-export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+interface ExtendedRequest extends Request {
+    user?: JwtPayload;
+  }
+
+export const authenticateToken = (req: ExtendedRequest, res: Response, next: NextFunction) => {
     const authHeader = req.headers?.authorization
     if (authHeader == null) return res.sendStatus(401)
 

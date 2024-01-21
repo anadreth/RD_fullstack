@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../../../database';
+import { db } from '../../../../database';
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ router.post('/posts/create', async (req, res) => {
 
     try {
         const newPost = await db
-            .insertInto('posts').values({ content, user_id, image_filename })
+            .insertInto('posts').values({content, user_id, image_filename, likes: 0})
             .execute();
 
         res.status(201);

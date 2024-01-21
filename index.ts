@@ -1,14 +1,14 @@
 import express, { Request, Response, NextFunction, Application } from 'express'
 import dotenv from 'dotenv'
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import bodyParser from 'body-parser'
-import { authenticateToken } from './middleware/authToken'
+import { authenticateToken } from './src/middleware/authToken'
 import multer from 'multer'
-import { generateImagePath, processAndSaveImage } from './helpers'
-import fsRoutes from './modules/FileStorage/routes/fsRoutes'
-import s3Routes from './modules/FileStorage/routes/s3Routes'
+import { generateImagePath, processAndSaveImage } from './src/helpers'
 import { db } from './database'
 import bcrypt from 'bcrypt'
+import fsRoutes from './src/services/FileStorage/routes/fsRoutes'
+import s3Routes from './src/services/FileStorage/routes/s3Routes'
 
 dotenv.config()
 const port = process.env.PORT || 3000
