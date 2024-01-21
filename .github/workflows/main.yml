@@ -24,10 +24,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ghcr.io/${{ secrets.USERNAME }}/${{vars.REPO_NAME}}:latest
+      - name: Build the Docker image
+        run: |
+          docker build . --tag ghcr.io/${{ secrets.USERNAME }}/${{vars.REPO_NAME}}:build_${{ github.run_number }}
+          docker push ghcr.io/${{ secrets.USERNAME }}/${{vars.REPO_NAME}}:build_${{ github.run_number }}
